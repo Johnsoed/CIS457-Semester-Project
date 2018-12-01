@@ -3,10 +3,16 @@ import java.io.*;
 import java.nio.*;
 import java.net.*;
 import java.util.*;
+import durakServer.Card.Suit;
+import durakServer.Card.Rank;
+
 
 
 class GameServer {
 ArrayList<Card> serverHand;
+
+Suit trumpSuit;
+
 
 
     public static void main(String[] args){
@@ -38,11 +44,26 @@ ArrayList<Card> serverHand;
             
             
             for (int j = 0; j<6; j++){
-            Card tempCard = (gameDeck.deal());
-            String cardMessage = tempCard.toString();
-            outToClient.writeBytes(cardMessage + '\n');
+                Card tempCard = (gameDeck.deal());
+                String cardMessage = tempCard.toString();
+                System.out.println(cardMessage);
+                outToClient.writeBytes(cardMessage + '\n');
             }
-            outToClient.writeBytes(null);
+           System.out.println("hi");
+           Card trumpCard = gameDeck.deal();
+           System.out.println("hi");
+           Suit trumpSuit = trumpCard.suit();
+            
+           System.out.println("the trump card was " + trumpCard);
+           System.out.println("the trump suit is " + trumpCard.suit());
+            
+           Boolean inGame; inGame = true;
+            
+            
+            
+            while(inGame == true){
+            
+            }
             
 
             
@@ -52,7 +73,7 @@ ArrayList<Card> serverHand;
         }
             
             catch(Exception e){
-                System.out.print("something went wrong");
+                System.out.println(e);
             }
 
             /*TODO This is where the code for setting up the game and geting ready to play will go.

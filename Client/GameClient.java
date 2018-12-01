@@ -29,8 +29,9 @@ ArrayList<Card> clientHand;
         String incomingCard;
         String tempRank;
         String tempSuit;
-        do {
+        for (int i = 0; i<6; i++) {
             incomingCard = inFromServer.readLine();
+            System.out.println(incomingCard);
             if (incomingCard != null)
             {
                 StringTokenizer cardTokens = new StringTokenizer(incomingCard);
@@ -39,18 +40,23 @@ ArrayList<Card> clientHand;
                 tempSuit = cardTokens.nextToken();;
                 clientHand.add(new Card(tempRank,tempSuit));
             }
-        } while(incomingCard != null);
+        }
         
         
         System.out.println("hi");
         for (int j = 0; j<clientHand.size();j++){
             System.out.println(clientHand.get(j));
             }
+            
+            
+        while(true){
+        }
         
         
         }
         catch (Exception e){
-        System.out.println("something went wrong");
+        System.out.println(e);
+        
         }
 
         /* TODO client game logic*/

@@ -11,7 +11,6 @@ import durakServer.Card.Rank;
 class GameServer {
 ArrayList<Card> serverHand;
 
-Suit trumpSuit;
 
 
 
@@ -38,32 +37,80 @@ Suit trumpSuit;
             for (int i = 0; i<6; i++){
             serverHand.add(gameDeck.deal());
             }
-            for (int j = 0; j<serverHand.size();j++){
-            System.out.println(serverHand.get(j));
-            }
+
             
             
             for (int j = 0; j<6; j++){
                 Card tempCard = (gameDeck.deal());
                 String cardMessage = tempCard.toString();
-                System.out.println(cardMessage);
                 outToClient.writeBytes(cardMessage + '\n');
             }
             outToClient.writeBytes("EOF\n");
-           System.out.println("hi");
            Card trumpCard = gameDeck.deal();
-           System.out.println("hi");
            Suit trumpSuit = trumpCard.suit();
             
            System.out.println("the trump card was " + trumpCard);
            System.out.println("the trump suit is " + trumpCard.suit());
             
-           Boolean inGame; inGame = true;
+           Boolean inGame = true;
            Boolean serverAttack = true;
-           
-            
-            
+           String cardCommand;
+           Scanner s = new Scanner(System.in);
+           String incomingCard;
+           Card serverCard = generateCard("ACE of SPADES");
+           Card clientCard = generateCard("ACE of SPADES");
+           Boolean cardPicked;
+           Boolean serverWin;
+           Boolean attackerWin;
             while(inGame == true){
+            
+            for (int j = 0; j<serverHand.size();j++){
+            System.out.println(serverHand.get(j));
+            }
+            
+            
+            if(serverAttack == true){
+            cardPicked = false;
+            System.out.println("you are attacking, select your card by entering in name exactly as displayed");
+            cardCommand = s.nextLine();
+            while(cardPicked == false){
+                for (int j = 0; j<serverHand.size();j++){
+                    if (cardCommand.equalsIgnoreCase(serverHand.get(j).toString())){
+                        serverCard = serverHand.get(j);
+                        
+                        serverHand.remove(j);;
+                        cardPicked = true;
+                    }
+                }
+                if(cardPicked == false){
+                System.out.println("wrong name or card not in hand");
+                cardCommand = s.nextLine();
+                }
+            }
+            
+            outToClient.writeBytes(serverCard.toString() + "\n");
+            incomingCard = inFromClient.readLine();
+            clientCard = generateCard(incomingCard);
+            System.out.println("client card received: " + clientCard);
+            
+            
+            
+            
+            }
+            
+            
+            
+            if(serverAttack == false){
+            System.out.println("you are defending");
+            
+            }
+            
+            
+            serverWin = determineWinner(serverCard, clientCard, serverAttack, trumpSuit);
+            System.out.println(serverWin);
+            
+            
+            
             
             }
             
@@ -113,6 +160,53 @@ Suit trumpSuit;
             return tempCard;
     
     }    
+    
+    
+    private static Boolean determineWinner(Card servCard, Card clieCard, Boolean serverAttack, Suit trumpSuit){
+        if(servCard.suit() == trumpSuit && clieCard.suit() == trumpSuit){
+            if (servCard.getScore() == clieCard.getScore()){
+                if (serverAttack == true){
+                    return true;
+                }
+               else {
+                    return false;
+               }            
+            }
+            if(servCard.getScore()>clieCard.getScore()){
+            return true;
+            }
+            else{
+            return false;
+            }
+        
+        }
+        if(servCard.suit()==trumpSuit && clieCard.suit() != trumpSuit){
+            return true;
+        }
+        if(clieCard.suit()==trumpSuit && servCard.suit()!=trumpSuit){
+            return false;
+        }
+        
+        if (servCard.getScore() == clieCard.getScore()){
+                if (serverAttack == true){
+                    return true;
+                }
+               else {
+                    return false;
+               }            
+            }
+        
+        if(servCard.getScore()>clieCard.getScore()){
+            return true;
+        }
+        else{
+            return false;
+            }
+        
+    
+
+    
+    }   
     
     
 }

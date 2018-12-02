@@ -32,25 +32,54 @@ ArrayList<Card> clientHand;
         incomingCard = "";
         while(!"EOF".equals(incomingCard)){
             incomingCard = inFromServer.readLine();
-            System.out.println(incomingCard);
             if (incomingCard != null && (!"EOF".equals(incomingCard))){
-                System.out.println("hi");
                 clientHand.add(generateCard(incomingCard));
             }
         }
         
         
-        System.out.println("hi");
-        for (int j = 0; j<clientHand.size();j++){
-            System.out.println(clientHand.get(j));
-            }
          Boolean inGame = true;
          Boolean clientAttack = false;
-            
+         Card clientCard = generateCard("ACE of SPADES");
+         Boolean cardPicked;;
+         String cardCommand;
             
             
             
         while(inGame == true){
+        for (int j = 0; j<clientHand.size();j++){
+            System.out.println(clientHand.get(j));
+            }
+        
+        
+        
+        if(clientAttack == false){
+            cardPicked = false;
+            incomingCard = inFromServer.readLine();
+            System.out.println("Server played: " + incomingCard);
+            System.out.println("you are defending, select your card by entering in name exactly as displayed");
+            
+            cardCommand = s.nextLine();
+            while(cardPicked == false){
+                for (int j = 0; j<clientHand.size();j++){
+                    if (cardCommand.equalsIgnoreCase(clientHand.get(j).toString())){
+                        clientCard = clientHand.get(j);
+                        clientHand.remove(j);
+                        cardPicked = true;
+                    }
+                }
+                if(cardPicked == false){
+                System.out.println("wrong name or card not in hand");
+                cardCommand = s.nextLine();
+                }
+            }
+            outToServer.writeBytes(clientCard.toString() + "\n");
+
+        }
+        
+        
+        
+        
         
         }
         

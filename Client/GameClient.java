@@ -29,16 +29,13 @@ ArrayList<Card> clientHand;
         String incomingCard;
         String tempRank;
         String tempSuit;
-        for (int i = 0; i<6; i++) {
+        incomingCard = "";
+        while(!"EOF".equals(incomingCard)){
             incomingCard = inFromServer.readLine();
             System.out.println(incomingCard);
-            if (incomingCard != null)
-            {
-                StringTokenizer cardTokens = new StringTokenizer(incomingCard);
-                tempRank = cardTokens.nextToken();
-                cardTokens.nextToken();
-                tempSuit = cardTokens.nextToken();;
-                clientHand.add(new Card(tempRank,tempSuit));
+            if (incomingCard != null && (!"EOF".equals(incomingCard))){
+                System.out.println("hi");
+                clientHand.add(generateCard(incomingCard));
             }
         }
         
@@ -47,17 +44,28 @@ ArrayList<Card> clientHand;
         for (int j = 0; j<clientHand.size();j++){
             System.out.println(clientHand.get(j));
             }
+         Boolean inGame = true;
+         Boolean clientAttack = false;
             
             
-        while(true){
+            
+            
+        while(inGame == true){
+        
         }
         
         
         }
         catch (Exception e){
         System.out.println(e);
+        System.out.println(e.getStackTrace());
         
         }
+        
+        
+        
+        
+        
 
         /* TODO client game logic*/
 
@@ -75,4 +83,16 @@ ArrayList<Card> clientHand;
 
         //} (repeat)
     }
+    
+    private static Card generateCard(String cardString){
+            StringTokenizer cardTokens = new StringTokenizer(cardString);
+            String tempRank = cardTokens.nextToken();
+            cardTokens.nextToken();
+            String tempSuit = cardTokens.nextToken();
+            Card tempCard = new Card(tempRank,tempSuit);
+            return tempCard;
+    
+    }
+    
+    
 }

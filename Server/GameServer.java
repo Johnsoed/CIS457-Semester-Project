@@ -49,6 +49,7 @@ Suit trumpSuit;
                 System.out.println(cardMessage);
                 outToClient.writeBytes(cardMessage + '\n');
             }
+            outToClient.writeBytes("EOF\n");
            System.out.println("hi");
            Card trumpCard = gameDeck.deal();
            System.out.println("hi");
@@ -58,7 +59,8 @@ Suit trumpSuit;
            System.out.println("the trump suit is " + trumpCard.suit());
             
            Boolean inGame; inGame = true;
-            
+           Boolean serverAttack = true;
+           
             
             
             while(inGame == true){
@@ -100,5 +102,17 @@ Suit trumpSuit;
 
         
     }
-
+    
+    
+    private static Card generateCard(String cardString){
+            StringTokenizer cardTokens = new StringTokenizer(cardString);
+            String tempRank = cardTokens.nextToken();
+            cardTokens.nextToken();
+            String tempSuit = cardTokens.nextToken();
+            Card tempCard = new Card(tempRank,tempSuit);
+            return tempCard;
+    
+    }    
+    
+    
 }

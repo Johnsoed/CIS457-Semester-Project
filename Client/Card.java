@@ -70,16 +70,16 @@ public class Card {
 				this.score = 10;
 				break;
 			case JACK:
-				this.score = 12;
+				this.score = 11;
 				break;
 			case QUEEN:
-				this.score = 13;
+				this.score = 12;
 				break;
 			case KING:
-				this.score = 14;
+				this.score = 13;
 				break;
 			case ACE:
-				this.score = 15;
+				this.score = 14;
 				break;
 			}
 	}

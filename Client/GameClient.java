@@ -29,6 +29,16 @@ ArrayList<Card> clientHand;
         String incomingCard;
         String tempRank;
         String tempSuit;
+        String winnerDisplay;
+        String winString;
+        int clientHandSize;
+        String clientSizeString;
+        Boolean clientWin = false;
+        String deckEmptyString;
+        Boolean deckEmpty = false;
+        String switchString;
+        String endGameString;
+        String gameOverMessage;
         incomingCard = "";
         while(!"EOF".equals(incomingCard)){
             incomingCard = inFromServer.readLine();
@@ -38,9 +48,11 @@ ArrayList<Card> clientHand;
         }
         
         
+         System.out.println(inFromServer.readLine());
          Boolean inGame = true;
          Boolean clientAttack = false;
          Card clientCard = generateCard("ACE of SPADES");
+         Card serverCard = generateCard("ACE of SPADES");
          Boolean cardPicked;;
          String cardCommand;
             
@@ -56,6 +68,7 @@ ArrayList<Card> clientHand;
         if(clientAttack == false){
             cardPicked = false;
             incomingCard = inFromServer.readLine();
+            serverCard = generateCard(incomingCard);
             System.out.println("Server played: " + incomingCard);
             System.out.println("you are defending, select your card by entering in name exactly as displayed");
             
@@ -73,15 +86,78 @@ ArrayList<Card> clientHand;
                 cardCommand = s.nextLine();
                 }
             }
-            outToServer.writeBytes(clientCard.toString() + "\n");
 
         }
         
+        if(clientAttack == true){
+            cardPicked = false;
+            System.out.println("you are attacking, select your card by entering in name exactly as displayed");
+            cardCommand = s.nextLine();
+            while(cardPicked == false){
+                for (int j = 0; j<clientHand.size();j++){
+                    if (cardCommand.equalsIgnoreCase(clientHand.get(j).toString())){
+                        clientCard = clientHand.get(j);
+                        
+                        clientHand.remove(j);;
+                        cardPicked = true;
+                    }
+                }
+                if(cardPicked == false){
+                System.out.println("wrong name or card not in hand");
+                cardCommand = s.nextLine();
+                }
+            }
+            
+        }
+        
+        outToServer.writeBytes(clientCard.toString() + "\n");
+        winnerDisplay = inFromServer.readLine();
+        System.out.println(winnerDisplay);
+        winString = inFromServer.readLine();
+        if(winString.equals("Server wins")){
+            clientWin = false;
+        }
+        if(winString.equals("Client wins")){
+            clientWin = true;
+        }
+        
+        if(clientWin == false && clientAttack == false){
+            clientHand.add(clientCard);
+            clientHand.add(serverCard);
+        }
+        
+        clientHandSize = clientHand.size();
+        clientSizeString = Integer.toString(clientHandSize);
+        outToServer.writeBytes(clientSizeString + "\n");
+        
+        deckEmptyString = inFromServer.readLine();
+        if (deckEmptyString.equals("yes") && deckEmpty == false){
+            System.out.println("no more cards in deck");
+            deckEmpty = true;
+            }
+        
+        if(clientHandSize<6 && deckEmpty == false){
+            incomingCard = inFromServer.readLine();
+            clientHand.add(generateCard(incomingCard));
+        }
         
         
+        switchString = inFromServer.readLine();
+        if(switchString.equals("switch")){
+            System.out.println("switching");
+            clientAttack = !clientAttack;
+            }
+            
+            endGameString = inFromServer.readLine();
+            
+            if(endGameString.equals("game over")){
+                inGame = false;
+                }
         
         
         }
+            gameOverMessage = inFromServer.readLine();
+            System.out.println(gameOverMessage);
         
         
         }
@@ -94,23 +170,6 @@ ArrayList<Card> clientHand;
         
         
         
-        
-
-        /* TODO client game logic*/
-
-        //1. Get hand from server
-
-        //while(true){
-
-        //2. get turn command from the server to determine who is attacking and who is defending
-
-        //3. send chosen card back to the server
-
-        //4. draw card from server deck if hand is less than 6
-
-        //4. wait for round won or lost
-
-        //} (repeat)
     }
     
     private static Card generateCard(String cardString){

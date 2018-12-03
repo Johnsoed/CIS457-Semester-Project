@@ -16,7 +16,7 @@ ArrayList<Card> serverHand;
 
     public static void main(String[] args){
     ArrayList<Card> serverHand = new ArrayList<Card>();
-        
+     Card tempCard;   
         try {
         
         int port = 1337;
@@ -41,7 +41,7 @@ ArrayList<Card> serverHand;
             
             
             for (int j = 0; j<6; j++){
-                Card tempCard = (gameDeck.deal());
+                tempCard = (gameDeck.deal());
                 String cardMessage = tempCard.toString();
                 outToClient.writeBytes(cardMessage + '\n');
             }
@@ -51,6 +51,8 @@ ArrayList<Card> serverHand;
             
            System.out.println("the trump card was " + trumpCard);
            System.out.println("the trump suit is " + trumpCard.suit());
+           outToClient.writeBytes("the trump suit is " + trumpCard.suit() + "\n");
+           
             
            Boolean inGame = true;
            Boolean serverAttack = true;
@@ -60,8 +62,16 @@ ArrayList<Card> serverHand;
            Card serverCard = generateCard("ACE of SPADES");
            Card clientCard = generateCard("ACE of SPADES");
            Boolean cardPicked;
-           Boolean serverWin;
-           Boolean attackerWin;
+           Boolean attackerWin = false;
+           String winnerString = "";
+           String winnerDisplay;
+           Boolean deckHasCards;
+           String clientSizeString;
+           Boolean firstTime = true;
+           Boolean serverWin = false;
+           String gameOverString;
+           int clientHandSize = 0;
+           
             while(inGame == true){
             
             for (int j = 0; j<serverHand.size();j++){
@@ -101,53 +111,128 @@ ArrayList<Card> serverHand;
             
             
             if(serverAttack == false){
-            System.out.println("you are defending");
+
+            cardPicked = false;
+            incomingCard = inFromClient.readLine();
+            System.out.println("Client played: " + incomingCard);
+            clientCard = generateCard(incomingCard);
+            System.out.println("you are defending, select your card by entering in name exactly as displayed");
+            
+            cardCommand = s.nextLine();
+            while(cardPicked == false){
+                for (int j = 0; j<serverHand.size();j++){
+                    if (cardCommand.equalsIgnoreCase(serverHand.get(j).toString())){
+                        serverCard = serverHand.get(j);
+                        serverHand.remove(j);
+                        cardPicked = true;
+                    }
+                }
+                if(cardPicked == false){
+                System.out.println("wrong name or card not in hand");
+                cardCommand = s.nextLine();
+                }
+            }
             
             }
             
             
             serverWin = determineWinner(serverCard, clientCard, serverAttack, trumpSuit);
-            System.out.println(serverWin);
-            
-            
-            
-            
-            }
-            
 
             
             
             
+            attackerWin = checkAttackWin(serverWin, serverAttack);
+            System.out.println("attacker win is :" + attackerWin);
+            
+            if(serverWin == true){
+                winnerString = "Server wins";
             }
+            else{
+                winnerString = "Client wins";
+            }
+            
+            winnerDisplay = ("Server's " + serverCard + " vs " + "Client's " + clientCard + 
+            ": " + winnerString);
+            System.out.println(winnerDisplay);
+            outToClient.writeBytes(winnerDisplay + "\n");
+            outToClient.writeBytes(winnerString + "\n");
+            
+            if(serverWin == false && serverAttack == false){
+                serverHand.add(serverCard);
+                serverHand.add(clientCard);
+            
+            }
+            
+            
+            deckHasCards = (gameDeck.deckCount() > 0);
+            
+            if (deckHasCards==false && firstTime == true){
+                System.out.println("no more cards in deck");
+                firstTime = false;
+            }
+            
+            
+            if(serverHand.size()<6 && deckHasCards){
+                tempCard = gameDeck.deal();
+                serverHand.add(tempCard);
+            }
+            
+            
+            clientSizeString = inFromClient.readLine();
+            clientHandSize = Integer.parseInt(clientSizeString);
+            
+            
+            deckHasCards = (gameDeck.deckCount() > 0);
+            
+            
+            System.out.println(deckHasCards);
+            if (deckHasCards==true){
+                outToClient.writeBytes("no\n");
+            }
+            else{
+                outToClient.writeBytes("yes\n");
+            }
+            
+            if(clientHandSize<6 && deckHasCards == true){
+                tempCard = gameDeck.deal();
+                outToClient.writeBytes(tempCard.toString()+"\n");
+            }
+            
+        
+            if(attackerWin == false){
+                System.out.println("switching");
+                outToClient.writeBytes("switch\n");
+                serverAttack = !serverAttack;
+            }
+            else{
+                outToClient.writeBytes("no switch\n");
+            }
+            
+            System.out.println(gameDeck.deckCount());
+            
+            
+            if(serverHand.size()== 0 || clientHandSize == 0){
+                inGame = false;
+                outToClient.writeBytes("game over\n");
+                }
+            else{
+                outToClient.writeBytes("game continues\n");
+                }
+                
+            
+            }
+            
+            gameOverString = findWinner(serverHand.size(), clientHandSize, serverWin);
+            outToClient.writeBytes(gameOverString + "\n");
+            System.out.println(gameOverString);
         }
+    }
             
             catch(Exception e){
                 System.out.println(e);
             }
 
-            /*TODO This is where the code for setting up the game and geting ready to play will go.
-              Not sure how we want to implement it yet.*/
 
-            //1. Generate a deck for use in the game
-
-            //2. Send client its hand
-
-            //3. while (inGame) {
-
-                //4. Send client if attacking or defending
-
-                //5. recieve card from client and compare to server's
-
-                //6. ask client if they need cards and send them if they are needed
-
-                //7. determine a round winner and looser
-
-                //8. check to see if either player is out of cards, if yes inGame = false, else repeat
-            
-            //}
-
-
-        
     }
     
     
@@ -173,10 +258,10 @@ ArrayList<Card> serverHand;
                }            
             }
             if(servCard.getScore()>clieCard.getScore()){
-            return true;
+                return true;
             }
             else{
-            return false;
+                return false;
             }
         
         }
@@ -203,10 +288,49 @@ ArrayList<Card> serverHand;
             return false;
             }
         
+    }
     
-
+  private static Boolean checkAttackWin(Boolean serverWin, Boolean serverAttack){
+        if(serverWin == true){
+            if (serverAttack == true){
+                return true;
+                }
+            else{
+                return false;
+                }
+            }
+        if(serverWin == false){
+            if (serverAttack == true){
+                return false;
+                }
+            else{
+                return true;
+                }
+            }
+        return false;
+    }
     
-    }   
+    
+    
+    private static String findWinner(int serverHandSize, int clientHandSize, Boolean serverWin){
+        if(serverHandSize ==0 && clientHandSize == 0){
+            if (serverWin == true){
+                return "Server wins the game!";
+                }
+            else{
+                return "Client wins the game!";
+                }
+            }
+            if(serverHandSize == 0 && clientHandSize > 0){
+                return "Server wins the game!";
+                }
+            if(clientHandSize == 0 && serverHandSize >0){
+                return "Client wins the game!";
+                }
+            return "something went wrong";
+    }
+    
+    
     
     
 }

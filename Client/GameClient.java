@@ -53,7 +53,7 @@ ArrayList<Card> clientHand;
          Boolean clientAttack = false;
          Card clientCard = generateCard("ACE of SPADES");
          Card serverCard = generateCard("ACE of SPADES");
-         Boolean cardPicked;;
+         Boolean cardPicked;
          String cardCommand;
             
             

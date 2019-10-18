@@ -22,7 +22,6 @@ ArrayList<Card> serverHand;
         int port = 1337;
         ServerSocket welcomeSocket = new ServerSocket(port);
 
-        while (true){
             Socket clientSocket = welcomeSocket.accept();
 
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -71,6 +70,8 @@ ArrayList<Card> serverHand;
            Boolean serverWin = false;
            String gameOverString;
            int clientHandSize = 0;
+           
+
            
             while(inGame == true){
             
@@ -142,7 +143,6 @@ ArrayList<Card> serverHand;
             
             
             attackerWin = checkAttackWin(serverWin, serverAttack);
-            System.out.println("attacker win is :" + attackerWin);
             
             if(serverWin == true){
                 winnerString = "Server wins";
@@ -185,7 +185,6 @@ ArrayList<Card> serverHand;
             deckHasCards = (gameDeck.deckCount() > 0);
             
             
-            System.out.println(deckHasCards);
             if (deckHasCards==true){
                 outToClient.writeBytes("no\n");
             }
@@ -222,10 +221,12 @@ ArrayList<Card> serverHand;
             
             }
             
+            System.out.println(serverHand.size());
+            System.out.println(clientHandSize);
             gameOverString = findWinner(serverHand.size(), clientHandSize, serverWin);
             outToClient.writeBytes(gameOverString + "\n");
             System.out.println(gameOverString);
-        }
+        
     }
             
             catch(Exception e){
@@ -276,7 +277,7 @@ ArrayList<Card> serverHand;
                 if (serverAttack == true){
                     return true;
                 }
-               else {
+                else {
                     return false;
                }            
             }
